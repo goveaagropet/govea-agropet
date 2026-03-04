@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Govea Agropet</title>
+<style>
+body{
+font-family: Arial;
+margin:0;
+background:#f5f5f5;
+}
+header{
+background:#1f6f43;
+color:white;
+text-align:center;
+padding:20px;
+font-size:22px;
+font-weight:bold;
+}
+.container{
+padding:15px;
+}
+.produto{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:8px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+button{
+background:#1f6f43;
+color:white;
+border:none;
+padding:10px;
+border-radius:5px;
+cursor:pointer;
+}
+button:hover{
+background:#14532d;
+}
+.carrinho{
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+padding:15px;
+box-shadow:0 -2px 5px rgba(0,0,0,0.2);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+</style>
+</head>
+<body>
+
+<header>🐾 Govea Agropet</header>
+
+<div class="container">
+
+<div class="produto">
+<h3>Ração Premier 15kg</h3>
+<p>R$ 199,90</p>
+<button onclick="addProduto('Ração Premier 15kg',199.90)">Adicionar</button>
+</div>
+
+<div class="produto">
+<h3>Ração Golden 10kg</h3>
+<p>R$ 139,90</p>
+<button onclick="addProduto('Ração Golden 10kg',139.90)">Adicionar</button>
+</div>
+
+<div class="produto">
+<h3>Biscoito Golden 500g</h3>
+<p>R$ 24,90</p>
+<button onclick="addProduto('Biscoito Golden 500g',24.90)">Adicionar</button>
+</div>
+
+</div>
+
+<div class="carrinho">
+<span id="total">Total: R$ 0,00</span>
+<button onclick="finalizar()">Finalizar no WhatsApp</button>
+</div>
+
+<script>
+let carrinho = [];
+let total = 0;
+
+function addProduto(nome, preco){
+carrinho.push({nome, preco});
+total += preco;
+document.getElementById("total").innerText = 
+"Total: R$ " + total.toFixed(2).replace('.',',');
+}
+
+function finalizar(){
+if(carrinho.length === 0){
+alert("Seu carrinho está vazio!");
+return;
+}
+
+let mensagem = "Olá Govea Agropet 🐾%0A%0AQuero fazer o seguinte pedido:%0A";
+
+carrinho.forEach(item=>{
+mensagem += "- " + item.nome + " - R$ " + item.preco.toFixed(2).replace('.',',') + "%0A";
+});
+
+mensagem += "%0ATotal: R$ " + total.toFixed(2).replace('.',',');
+
+let numero = "5565996715293";
+
+window.open(`https://wa.me/${numero}?text=${mensagem}`);
+}
+</script>
+
+</body>
+</html>
