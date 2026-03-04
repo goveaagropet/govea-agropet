@@ -6,135 +6,157 @@
 <title>Govea Agropet</title>
 
 <style>
+
 body{
 margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#f4f6f8;
+font-family: 'Segoe UI', Arial, sans-serif;
+background:#f3f4f6;
 }
 
 header{
-background:#1f6f43;
-color:white;
-padding:15px;
+background:white;
+padding:20px;
 text-align:center;
-font-size:22px;
-font-weight:bold;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
-.logo{
-font-size:26px;
+header h1{
+margin:0;
+color:#2f5e2f;
+font-size:32px;
 }
 
 .categorias{
 display:flex;
-overflow-x:auto;
-background:white;
-padding:10px;
-gap:10px;
+justify-content:center;
+gap:15px;
+padding:20px;
 }
 
 .categorias button{
-background:#e7e7e7;
+padding:12px 25px;
 border:none;
-padding:8px 15px;
-border-radius:20px;
+border-radius:30px;
+font-size:16px;
 cursor:pointer;
+background:#e5e7eb;
 }
 
-.categorias button.ativo{
-background:#1f6f43;
+.categorias .ativo{
+background:#2f5e2f;
 color:white;
 }
 
 .container{
-padding:15px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:20px;
+padding-bottom:120px;
 }
 
-.produto{
+.card{
 background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
+padding:20px;
+border-radius:20px;
+box-shadow:0 5px 15px rgba(0,0,0,0.08);
+text-align:center;
 }
 
-.produto img{
-width:100%;
-max-height:150px;
+.card img{
+max-width:100%;
+height:200px;
 object-fit:contain;
 }
 
-.produto h3{
-margin:10px 0 5px 0;
+.card h3{
+margin:15px 0 5px;
 }
 
-.produto p{
-margin:0 0 10px 0;
+.preco{
+font-size:20px;
 font-weight:bold;
-color:#1f6f43;
+color:#2f5e2f;
+margin-bottom:15px;
 }
 
 .qtd{
 display:flex;
+justify-content:center;
 align-items:center;
 gap:10px;
 }
 
 .qtd button{
-background:#1f6f43;
-color:white;
+width:40px;
+height:40px;
 border:none;
-padding:5px 10px;
+border-radius:10px;
+font-size:18px;
 cursor:pointer;
-border-radius:5px;
 }
 
-.carrinho{
+.menos{
+background:#e5e7eb;
+}
+
+.mais{
+background:#2f5e2f;
+color:white;
+}
+
+.barra{
 position:fixed;
 bottom:0;
 width:100%;
 background:white;
-padding:15px;
-box-shadow:0 -2px 8px rgba(0,0,0,0.2);
+padding:20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+box-shadow:0 -5px 15px rgba(0,0,0,0.1);
+}
+
+.total{
+font-size:22px;
+font-weight:bold;
 }
 
 .finalizar{
-background:#25D366;
+background:#2f5e2f;
 color:white;
+padding:15px 30px;
 border:none;
-padding:10px 15px;
-border-radius:8px;
+border-radius:15px;
+font-size:18px;
 cursor:pointer;
-font-weight:bold;
 }
+
 </style>
 </head>
 
 <body>
 
 <header>
-<div class="logo">🐾 Govea Agropet</div>
+<h1>🐾 Govea Agropet</h1>
 </header>
 
 <div class="categorias">
-<button class="ativo" onclick="filtrar('todos')">Todos</button>
-<button onclick="filtrar('racao')">Rações</button>
-<button onclick="filtrar('petisco')">Petiscos</button>
+<button class="ativo" onclick="filtrar('todos', this)">Todos</button>
+<button onclick="filtrar('racao', this)">Rações</button>
+<button onclick="filtrar('petisco', this)">Petiscos</button>
 </div>
 
 <div class="container" id="produtos"></div>
 
-<div class="carrinho">
-<div id="total">Total: R$ 0,00</div>
+<div class="barra">
+<div class="total" id="total">Total: R$ 0,00</div>
 <button class="finalizar" onclick="finalizar()">Finalizar no WhatsApp</button>
 </div>
 
 <script>
 
-let listaProdutos = [
+let produtos = [
 {nome:"Ração Premier 15kg", preco:199.90, categoria:"racao", img:"https://premierpet.com.br/wp-content/uploads/2020/07/premier_formula_caes_adultos_frango_15kg.png"},
 {nome:"Ração Golden 10kg", preco:139.90, categoria:"racao", img:"https://premierpet.com.br/wp-content/uploads/2020/07/golden_formula_caes_adultos_frango_10kg.png"},
 {nome:"Biscoito Golden 500g", preco:24.90, categoria:"petisco", img:"https://premierpet.com.br/wp-content/uploads/2020/07/golden_biscoito_caes_500g.png"}
@@ -142,22 +164,22 @@ let listaProdutos = [
 
 let carrinho = [];
 
-function carregarProdutos(filtro="todos"){
+function carregar(filtro="todos"){
 let area = document.getElementById("produtos");
 area.innerHTML="";
 
-listaProdutos.forEach((produto,index)=>{
-if(filtro==="todos" || produto.categoria===filtro){
+produtos.forEach((p,i)=>{
+if(filtro==="todos" || p.categoria===filtro){
 
 area.innerHTML += `
-<div class="produto">
-<img src="${produto.img}">
-<h3>${produto.nome}</h3>
-<p>R$ ${produto.preco.toFixed(2).replace('.',',')}</p>
+<div class="card">
+<img src="${p.img}">
+<h3>${p.nome}</h3>
+<div class="preco">R$ ${p.preco.toFixed(2).replace('.',',')}</div>
 <div class="qtd">
-<button onclick="alterarQtd(${index}, -1)">-</button>
-<span id="qtd-${index}">0</span>
-<button onclick="alterarQtd(${index}, 1)">+</button>
+<button class="menos" onclick="alterar(${i},-1)">−</button>
+<span id="q${i}">0</span>
+<button class="mais" onclick="alterar(${i},1)">+</button>
 </div>
 </div>
 `;
@@ -165,66 +187,59 @@ area.innerHTML += `
 });
 }
 
-function filtrar(cat){
-document.querySelectorAll(".categorias button").forEach(btn=>btn.classList.remove("ativo"));
-event.target.classList.add("ativo");
-carregarProdutos(cat);
+function filtrar(cat, btn){
+document.querySelectorAll(".categorias button").forEach(b=>b.classList.remove("ativo"));
+btn.classList.add("ativo");
+carregar(cat);
 }
 
-function alterarQtd(index, valor){
-if(!carrinho[index]){
-carrinho[index]={...listaProdutos[index], quantidade:0};
+function alterar(i,valor){
+if(!carrinho[i]){
+carrinho[i]={...produtos[i], quantidade:0};
 }
 
-carrinho[index].quantidade += valor;
+carrinho[i].quantidade += valor;
+if(carrinho[i].quantidade<0) carrinho[i].quantidade=0;
 
-if(carrinho[index].quantidade <=0){
-carrinho[index].quantidade = 0;
-}
-
-document.getElementById("qtd-"+index).innerText = carrinho[index].quantidade;
-
+document.getElementById("q"+i).innerText=carrinho[i].quantidade;
 atualizarTotal();
 }
 
 function atualizarTotal(){
-let total = 0;
+let total=0;
 carrinho.forEach(item=>{
 if(item && item.quantidade>0){
-total += item.preco * item.quantidade;
+total+=item.preco*item.quantidade;
 }
 });
-
-document.getElementById("total").innerText = 
-"Total: R$ " + total.toFixed(2).replace('.',',');
+document.getElementById("total").innerText="Total: R$ "+total.toFixed(2).replace('.',',');
 }
 
 function finalizar(){
 
-let numero = "5565996715293"; // TROCAR
+let numero="5565996715293"; // TROQUE AQUI
 
-let mensagem = "Olá Govea Agropet 🐾%0A%0A🛒 Pedido:%0A";
-
-let total = 0;
+let msg="Olá Govea Agropet 🐾%0A%0APedido:%0A";
+let total=0;
 
 carrinho.forEach(item=>{
 if(item && item.quantidade>0){
-mensagem += `- ${item.quantidade}x ${item.nome} - R$ ${(item.preco*item.quantidade).toFixed(2).replace('.',',')}%0A`;
-total += item.preco*item.quantidade;
+msg+=`- ${item.quantidade}x ${item.nome}%0A`;
+total+=item.preco*item.quantidade;
 }
 });
 
 if(total===0){
-alert("Seu carrinho está vazio!");
+alert("Carrinho vazio!");
 return;
 }
 
-mensagem += `%0ATotal: R$ ${total.toFixed(2).replace('.',',')}`;
+msg+=`%0ATotal: R$ ${total.toFixed(2).replace('.',',')}`;
 
-window.open(`https://wa.me/${numero}?text=${mensagem}`);
+window.open(`https://wa.me/${numero}?text=${msg}`);
 }
 
-carregarProdutos();
+carregar();
 
 </script>
 
