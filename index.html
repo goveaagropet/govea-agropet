@@ -4,114 +4,228 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Govea Agropet</title>
+
 <style>
 body{
-font-family: Arial;
 margin:0;
-background:#f5f5f5;
+font-family:Arial, Helvetica, sans-serif;
+background:#f4f6f8;
 }
+
 header{
 background:#1f6f43;
 color:white;
+padding:15px;
 text-align:center;
-padding:20px;
 font-size:22px;
 font-weight:bold;
 }
+
+.logo{
+font-size:26px;
+}
+
+.categorias{
+display:flex;
+overflow-x:auto;
+background:white;
+padding:10px;
+gap:10px;
+}
+
+.categorias button{
+background:#e7e7e7;
+border:none;
+padding:8px 15px;
+border-radius:20px;
+cursor:pointer;
+}
+
+.categorias button.ativo{
+background:#1f6f43;
+color:white;
+}
+
 .container{
 padding:15px;
 }
+
 .produto{
 background:white;
 padding:15px;
-margin-bottom:10px;
-border-radius:8px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
-button{
+
+.produto img{
+width:100%;
+max-height:150px;
+object-fit:contain;
+}
+
+.produto h3{
+margin:10px 0 5px 0;
+}
+
+.produto p{
+margin:0 0 10px 0;
+font-weight:bold;
+color:#1f6f43;
+}
+
+.qtd{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.qtd button{
 background:#1f6f43;
 color:white;
 border:none;
-padding:10px;
-border-radius:5px;
+padding:5px 10px;
 cursor:pointer;
+border-radius:5px;
 }
-button:hover{
-background:#14532d;
-}
+
 .carrinho{
 position:fixed;
 bottom:0;
 width:100%;
 background:white;
 padding:15px;
-box-shadow:0 -2px 5px rgba(0,0,0,0.2);
+box-shadow:0 -2px 8px rgba(0,0,0,0.2);
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
+
+.finalizar{
+background:#25D366;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
 </style>
 </head>
+
 <body>
 
-<header>🐾 Govea Agropet</header>
+<header>
+<div class="logo">🐾 Govea Agropet</div>
+</header>
 
-<div class="container">
-
-<div class="produto">
-<h3>Ração Premier 15kg</h3>
-<p>R$ 199,90</p>
-<button onclick="addProduto('Ração Premier 15kg',199.90)">Adicionar</button>
+<div class="categorias">
+<button class="ativo" onclick="filtrar('todos')">Todos</button>
+<button onclick="filtrar('racao')">Rações</button>
+<button onclick="filtrar('petisco')">Petiscos</button>
 </div>
 
-<div class="produto">
-<h3>Ração Golden 10kg</h3>
-<p>R$ 139,90</p>
-<button onclick="addProduto('Ração Golden 10kg',139.90)">Adicionar</button>
-</div>
-
-<div class="produto">
-<h3>Biscoito Golden 500g</h3>
-<p>R$ 24,90</p>
-<button onclick="addProduto('Biscoito Golden 500g',24.90)">Adicionar</button>
-</div>
-
-</div>
+<div class="container" id="produtos"></div>
 
 <div class="carrinho">
-<span id="total">Total: R$ 0,00</span>
-<button onclick="finalizar()">Finalizar no WhatsApp</button>
+<div id="total">Total: R$ 0,00</div>
+<button class="finalizar" onclick="finalizar()">Finalizar no WhatsApp</button>
 </div>
 
 <script>
-let carrinho = [];
-let total = 0;
 
-function addProduto(nome, preco){
-carrinho.push({nome, preco});
-total += preco;
+let listaProdutos = [
+{nome:"Ração Premier 15kg", preco:199.90, categoria:"racao", img:"https://premierpet.com.br/wp-content/uploads/2020/07/premier_formula_caes_adultos_frango_15kg.png"},
+{nome:"Ração Golden 10kg", preco:139.90, categoria:"racao", img:"https://premierpet.com.br/wp-content/uploads/2020/07/golden_formula_caes_adultos_frango_10kg.png"},
+{nome:"Biscoito Golden 500g", preco:24.90, categoria:"petisco", img:"https://premierpet.com.br/wp-content/uploads/2020/07/golden_biscoito_caes_500g.png"}
+];
+
+let carrinho = [];
+
+function carregarProdutos(filtro="todos"){
+let area = document.getElementById("produtos");
+area.innerHTML="";
+
+listaProdutos.forEach((produto,index)=>{
+if(filtro==="todos" || produto.categoria===filtro){
+
+area.innerHTML += `
+<div class="produto">
+<img src="${produto.img}">
+<h3>${produto.nome}</h3>
+<p>R$ ${produto.preco.toFixed(2).replace('.',',')}</p>
+<div class="qtd">
+<button onclick="alterarQtd(${index}, -1)">-</button>
+<span id="qtd-${index}">0</span>
+<button onclick="alterarQtd(${index}, 1)">+</button>
+</div>
+</div>
+`;
+}
+});
+}
+
+function filtrar(cat){
+document.querySelectorAll(".categorias button").forEach(btn=>btn.classList.remove("ativo"));
+event.target.classList.add("ativo");
+carregarProdutos(cat);
+}
+
+function alterarQtd(index, valor){
+if(!carrinho[index]){
+carrinho[index]={...listaProdutos[index], quantidade:0};
+}
+
+carrinho[index].quantidade += valor;
+
+if(carrinho[index].quantidade <=0){
+carrinho[index].quantidade = 0;
+}
+
+document.getElementById("qtd-"+index).innerText = carrinho[index].quantidade;
+
+atualizarTotal();
+}
+
+function atualizarTotal(){
+let total = 0;
+carrinho.forEach(item=>{
+if(item && item.quantidade>0){
+total += item.preco * item.quantidade;
+}
+});
+
 document.getElementById("total").innerText = 
 "Total: R$ " + total.toFixed(2).replace('.',',');
 }
 
 function finalizar(){
-if(carrinho.length === 0){
+
+let numero = "5565996715293"; // TROCAR
+
+let mensagem = "Olá Govea Agropet 🐾%0A%0A🛒 Pedido:%0A";
+
+let total = 0;
+
+carrinho.forEach(item=>{
+if(item && item.quantidade>0){
+mensagem += `- ${item.quantidade}x ${item.nome} - R$ ${(item.preco*item.quantidade).toFixed(2).replace('.',',')}%0A`;
+total += item.preco*item.quantidade;
+}
+});
+
+if(total===0){
 alert("Seu carrinho está vazio!");
 return;
 }
 
-let mensagem = "Olá Govea Agropet 🐾%0A%0AQuero fazer o seguinte pedido:%0A";
-
-carrinho.forEach(item=>{
-mensagem += "- " + item.nome + " - R$ " + item.preco.toFixed(2).replace('.',',') + "%0A";
-});
-
-mensagem += "%0ATotal: R$ " + total.toFixed(2).replace('.',',');
-
-let numero = "5565996715293";
+mensagem += `%0ATotal: R$ ${total.toFixed(2).replace('.',',')}`;
 
 window.open(`https://wa.me/${numero}?text=${mensagem}`);
 }
+
+carregarProdutos();
+
 </script>
 
 </body>
